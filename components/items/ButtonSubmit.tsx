@@ -1,13 +1,19 @@
-import React from 'react';
-import { Pressable, Text } from 'react-native';
+import React from "react";
+import { Pressable, Text } from "react-native";
 
 interface ButtonSubmitPropsType {
-  backgroundColor: string,
-  color: string
-  text: string
+  backgroundColor: string;
+  color: string;
+  text: string;
+  handleClick: () => void;
 }
 
-const ButtonSubmit = ({backgroundColor, color, text}: ButtonSubmitPropsType) => {
+const ButtonSubmit = ({
+  backgroundColor,
+  color,
+  text,
+  handleClick,
+}: ButtonSubmitPropsType) => {
   return (
     <Pressable
       style={{
@@ -15,14 +21,15 @@ const ButtonSubmit = ({backgroundColor, color, text}: ButtonSubmitPropsType) => 
         padding: 15,
         borderRadius: 10,
         cursor: "pointer",
-        marginTop: 10
+        marginTop: 10,
       }}
+      onPress={handleClick}
     >
       <Text
         style={{
           color: color,
           fontSize: 15,
-          textAlign: 'center',
+          textAlign: "center",
         }}
       >
         {text}
