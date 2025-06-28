@@ -10,6 +10,7 @@ import {
 import ButtonSubmit from "../items/ButtonSubmit";
 import InputLogin from "../layouts/InputLogin";
 import InputRegister from "../layouts/InputRegister";
+import asyncstorage from "@react-native-async-storage/async-storage"
 
 interface AuthPropsTypes {
   title: string;
@@ -54,7 +55,17 @@ const Auth = ({ title, textButton, children }: AuthPropsTypes) => {
     confirmPassword: "",
   });
 
-  const onClick = () => {
+  const saveDataRegister = async () => {
+    const dataRegister = {
+      name: valueRegister.name,
+      email: valueRegister.email,
+      password: valueRegister.password
+    }
+
+    await asyncstorage.setItem("Register", JSON.stringify(dataRegister))
+  };
+
+  const onClick = async () => {
     if (title === "login") {
       const result = loginSchema.safeParse(valueLogin);
 
@@ -69,8 +80,30 @@ const Auth = ({ title, textButton, children }: AuthPropsTypes) => {
         return;
       }
 
+      const registerString = await asyncstorage.getItem("Register");
+
+       if (!registerString) {
+        setLoginError({
+          name: "Akun tidak ditemukan",
+          password: "Akun tidak ditemukan",
+        });
+        return;
+      }
+
+      const data = JSON.parse(registerString);
+
+      const nameMatch = data.name === valueLogin.name;
+      const passwordMatch = data.password === valueLogin.password;
+
+      if (!nameMatch || !passwordMatch) {
+        setLoginError({
+          name: !nameMatch ? "Nama pengguna salah" : undefined,
+          password: !passwordMatch ? "Kata sandi salah" : undefined,
+        });
+        return;
+      }
+
       setLoginError({});
-      console.log("Login data:", valueLogin);
       setValueLogin({ name: "", password: "" });
     } else {
       const result = registerSchema.safeParse(valueRegister);
@@ -85,7 +118,9 @@ const Auth = ({ title, textButton, children }: AuthPropsTypes) => {
       }
 
       setRegisterError({});
-      console.log("Register data:", valueRegister);
+      setValueRegister(valueRegister);
+      await saveDataRegister();
+
       setValueRegister({
         name: "",
         email: "",
@@ -121,7 +156,7 @@ const Auth = ({ title, textButton, children }: AuthPropsTypes) => {
             {title}
           </Text>
           <View
-            style={{
+            style={{  
               width: "80%",
               display: "flex",
               flexDirection: "column",
